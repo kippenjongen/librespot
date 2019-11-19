@@ -469,9 +469,15 @@ impl PlayerInternal {
         }
     }
 
-    fn handle_command(&mut self, cmd: PlayerCommand, spotify_id: SpotifyId,) {
+    fn handle_command(&mut self, cmd: PlayerCommand) {
         debug!("command={:?}", cmd);
-		let audio = AudioItem::get_audio_item(&self.session, spotify_id)
+        match cmd {
+            PlayerCommand::Load(track_id, play, position, end_of_track) => {
+                if self.state.is_playing() {
+                    self.stop_sink_if_running();
+                }
+
+		let audio = AudioItem::get_audio_item(&self.session, track_id)
             .wait()
             .unwrap();
         let audio = match self.find_available_alternative(&audio) {
@@ -481,11 +487,6 @@ impl PlayerInternal {
                 return None;
             }
         };
-        match cmd {
-            PlayerCommand::Load(track_id, play, position, end_of_track) => {
-                if self.state.is_playing() {
-                    self.stop_sink_if_running();
-                }
 
                 match self.load_track(track_id, position as i64) {
                     Some((
