@@ -469,8 +469,18 @@ impl PlayerInternal {
         }
     }
 
-    fn handle_command(&mut self, cmd: PlayerCommand) {
+    fn handle_command(&mut self, cmd: PlayerCommand, spotify_id: SpotifyId,) {
         debug!("command={:?}", cmd);
+		let audio = AudioItem::get_audio_item(&self.session, spotify_id)
+            .wait()
+            .unwrap();
+        let audio = match self.find_available_alternative(&audio) {
+            Some(audio) => audio,
+            None => {
+                warn!("<{}> is not available", audio.uri);
+                return None;
+            }
+        };
         match cmd {
             PlayerCommand::Load(track_id, play, position, end_of_track) => {
                 if self.state.is_playing() {
@@ -496,9 +506,9 @@ impl PlayerInternal {
                                 } => self.send_event(PlayerEvent::Changed {
                                     old_track_id: old_track_id,
                                     new_track_id: track_id,
-									track_name: "Hello, change".to_string(),
+									track_name: audio.name.to_string(),
                                 }),
-                                _ => self.send_event(PlayerEvent::Started { track_id: track_id, track_name: "Hello, start".to_string(), }),
+                                _ => self.send_event(PlayerEvent::Started { track_id: track_id, track_name: audio.name.to_string(), }),
                             }
 
                             self.start_sink();
@@ -531,11 +541,11 @@ impl PlayerInternal {
                                 } => self.send_event(PlayerEvent::Changed {
                                     old_track_id: old_track_id,
                                     new_track_id: track_id,
-									track_name: "Hello, chamnge(stop)".to_string(),
+									track_name: audio.name.to_string(),
                                 }),
                                 _ => (),
                             }
-                            self.send_event(PlayerEvent::Stopped { track_id: track_id, track_name: "Hello, stop".to_string(), });
+                            self.send_event(PlayerEvent::Stopped { track_id: track_id, track_name: audio.name.to_string(), });
                         }
                     }
 
@@ -589,7 +599,7 @@ impl PlayerInternal {
                 if let PlayerState::Paused { track_id, .. } = self.state {
                     self.state.paused_to_playing();
 
-                    self.send_event(PlayerEvent::Started { track_id: track_id, track_name: "Hello, start".to_string(), });
+                    self.send_event(PlayerEvent::Started { track_id: track_id, track_name: audio.name.to_string(), });
                     self.start_sink();
                 } else {
                     warn!("Player::play called from invalid state");
@@ -601,7 +611,7 @@ impl PlayerInternal {
                     self.state.playing_to_paused();
 
                     self.stop_sink_if_running();
-                    self.send_event(PlayerEvent::Stopped { track_id: track_id, track_name: "Hello, pause".to_string(), });
+                    self.send_event(PlayerEvent::Stopped { track_id: track_id, track_name: audio.name.to_string(), });
                 } else {
                     warn!("Player::pause called from invalid state");
                 }
@@ -612,7 +622,7 @@ impl PlayerInternal {
                 | PlayerState::Paused { track_id, .. }
                 | PlayerState::EndOfTrack { track_id } => {
                     self.stop_sink_if_running();
-                    self.send_event(PlayerEvent::Stopped { track_id: track_id, track_name: "Hello, stop".to_string(), });
+                    self.send_event(PlayerEvent::Stopped { track_id: track_id, track_name: audio.name.to_string(), });
                     self.state = PlayerState::Stopped;
                 }
                 PlayerState::Stopped => {
