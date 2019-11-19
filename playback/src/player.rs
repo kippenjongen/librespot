@@ -484,7 +484,6 @@ impl PlayerInternal {
             Some(audio) => audio,
             None => {
                 warn!("<{}> is not available", audio.uri);
-                return None;
             }
         };
 
