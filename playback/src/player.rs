@@ -11,7 +11,6 @@ use std::sync::mpsc::{RecvError, RecvTimeoutError, TryRecvError};
 use std::thread;
 use std::time::Duration;
 
-/* // start of run onevent stuff
 use tokio_process::{Child, CommandExt};
 use std::collections::HashMap;
 use std::io;
@@ -488,14 +487,6 @@ impl PlayerInternal {
 						let audio = AudioItem::get_audio_item(&self.session, track_id)
 							.wait()
 							.unwrap();
-					//    info!("Hello: Loading <{}> with Spotify URI <{}>", audio.name, audio.uri);
-
-					//	let audio = match self.find_available_alternative(&audio) {
-					//		Some(audio) => audio,
-					//		None => {
-					//			warn!("<{}> is not available", audio.uri);
-					//		}
-					//	};
                         
 						if play {
                             match self.state {
