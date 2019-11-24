@@ -1,0 +1,14 @@
+#!/bin/sh
+
+echo Spotify event START: ---------------------------------------
+echo PLAYER_EVENT: $PLAYER_EVENT
+echo TRACK_ID:     $TRACK_ID
+echo OLD_TRACK_ID: $OLD_TRACK_ID
+echo TRACK_NAME:   $TRACK_NAME
+echo Spotify event END: -----------------------------------------
+echo Spotify event START: ---------------------------------------	>> /home/pi/log.txt
+echo PLAYER_EVENT: $PLAYER_EVENT					>> /home/pi/log.txt
+echo TRACK_ID:     $TRACK_ID						>> /home/pi/log.txt
+echo OLD_TRACK_ID: $OLD_TRACK_ID					>> /home/pi/log.txt
+echo TRACK_NAME:   $TRACK_NAME						>> /home/pi/log.txt
+echo Spotify event END: -----------------------------------------	>> /home/pi/log.txt

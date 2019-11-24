@@ -1,0 +1,13 @@
+[Unit]
+Description=Librespot
+After=network.target
+
+[Service]
+Restart=always
+RestartSec=10
+PermissionsStartOnly=true
+ExecStartPre=/bin/mkdir -m 0777 -p /var/cache/librespot
+ExecStart=/usr/bin/librespot --name "Librespot" -b 320 -c /var/cache/librespot --enable-volume-normalisation --linear-volume --initial-volume 100 --device-type avr --onevent /home/pi/librespot/onevent
+
+[Install]
+WantedBy=multi-user.target
